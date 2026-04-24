@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedQuAD — Medical Q&A Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #08091a;
+      --surface: #0f1128;
+      --surface2: #161833;
+      --border: rgba(99,120,255,0.18);
+      --accent: #6378ff;
+      --accent2: #a78bfa;
+      --text: #e8eaf6;
+      --muted: #7b82b4;
+      --green: #34d399;
+      --red: #f87171;
+      --card-glow: 0 0 40px rgba(99,120,255,0.10);
+    }
+
+    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* Background gradient blobs */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 10%, rgba(99,120,255,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, rgba(167,139,250,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .wrapper { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Header */
+    header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 22px 48px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15,17,40,0.7);
+      backdrop-filter: blur(16px);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .logo {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    header h1 { font-size: 1.2rem; font-weight: 600; letter-spacing: -0.5px; }
+    header h1 span { color: var(--accent2); }
+    .badge {
+      margin-left: auto; padding: 4px 12px; border-radius: 100px;
+      background: rgba(52,211,153,0.12); color: var(--green);
+      font-size: 0.73rem; font-weight: 600; letter-spacing: 0.4px;
+      border: 1px solid rgba(52,211,153,0.25);
+    }
+
+    main { flex: 1; max-width: 860px; width: 100%; margin: 0 auto; padding: 56px 24px; }
+
+    /* Hero */
+    .hero { text-align: center; margin-bottom: 48px; }
+    .hero h2 {
+      font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 700;
+      line-height: 1.15; letter-spacing: -1px;
+      background: linear-gradient(135deg, #fff 30%, var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 14px;
+    }
+    .hero p { color: var(--muted); font-size: 1rem; line-height: 1.6; max-width: 560px; margin: 0 auto; }
+
+    /* Search box */
+    .search-wrap {
+      display: flex; gap: 10px; align-items: center;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 8px 8px 8px 20px;
+      box-shadow: var(--card-glow);
+      transition: border-color 0.2s;
+      margin-bottom: 14px;
+    }
+    .search-wrap:focus-within { border-color: var(--accent); }
+    #queryInput {
+      flex: 1; background: none; border: none; outline: none;
+      color: var(--text); font-size: 1rem; font-family: inherit;
+      padding: 8px 0;
+    }
+    #queryInput::placeholder { color: var(--muted); }
+    #searchBtn {
+      padding: 12px 24px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; font-weight: 600; font-size: 0.95rem;
+      border: none; cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    #searchBtn:hover { opacity: 0.88; }
+    #searchBtn:active { transform: scale(0.97); }
+    #searchBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .row-options { display: flex; align-items: center; gap: 20px; margin-bottom: 36px; color: var(--muted); font-size: 0.85rem; }
+    .row-options label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .row-options select {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); padding: 4px 10px; border-radius: 8px; font-size: 0.85rem;
+      outline: none; cursor: pointer;
+    }
+
+    /* Suggestions */
+    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
+    .chip {
+      padding: 7px 14px; border-radius: 100px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); font-size: 0.82rem; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent2); background: rgba(99,120,255,0.08); }
+
+    /* Status */
+    #status { text-align: center; color: var(--muted); font-size: 0.9rem; padding: 20px; }
+
+    /* Spinner */
+    .spinner {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 3px solid rgba(99,120,255,0.15);
+      border-top-color: var(--accent);
+      animation: spin 0.7s linear infinite;
+      margin: 10px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Result cards */
+    #results { display: flex; flex-direction: column; gap: 20px; }
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px 28px;
+      box-shadow: var(--card-glow);
+      animation: fadeUp 0.35s ease both;
+    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+    .card-rank {
+      font-size: 0.72rem; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      padding-top: 2px; flex-shrink: 0;
+    }
+    .card-meta {}
+    .card-focus { font-size: 0.95rem; font-weight: 600; color: var(--text); line-height: 1.35; margin-bottom: 4px; }
+    .card-source-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .tag {
+      font-size: 0.72rem; font-weight: 600; padding: 2px 9px; border-radius: 100px;
+      background: rgba(99,120,255,0.12); color: var(--accent2);
+      border: 1px solid rgba(99,120,255,0.2);
+    }
+    .score { font-size: 0.75rem; color: var(--muted); }
+    .card-link { font-size: 0.75rem; color: var(--accent); text-decoration: none; }
+    .card-link:hover { text-decoration: underline; }
+
+    .card-text {
+      color: #c5c9e8; font-size: 0.92rem; line-height: 1.7;
+      border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px;
+    }
+    .card-text strong { color: var(--text); }
+
+    .result-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
+    .result-meta span { color: var(--accent2); font-weight: 600; }
+
+    /* Error */
+    .error-box {
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 12px; padding: 16px 20px; color: var(--red); font-size: 0.9rem;
+    }
+
+    /* Footer */
+    footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.78rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent2); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <div class="logo">🩺</div>
+    <h1>Med<span>QuAD</span> Assistant</h1>
+    <div class="badge" id="healthBadge">● Connecting…</div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <h2>Ask Any Medical Question</h2>
+      <p>Powered by 17,000+ NIH documents. Answers come verbatim from the MedQuAD dataset using hybrid AI search.</p>
+    </div>
+
+    <div class="search-wrap">
+      <input
+        id="queryInput" type="text"
+        placeholder="e.g. What are the symptoms of Type 2 Diabetes?"
+        autocomplete="off"
+      />
+      <button id="searchBtn" onclick="search()">Search →</button>
+    </div>
+
+    <div class="row-options">
+      <label>Results: <select id="topK">
+        <option value="3">3</option>
+        <option value="5" selected>5</option>
+        <option value="10">10</option>
+      </select></label>
+    </div>
+
+    <div class="suggestions">
+      <span class="chip" onclick="ask('What are the symptoms of asthma?')">Symptoms of asthma</span>
+      <span class="chip" onclick="ask('How is Alzheimer disease treated?')">Alzheimer treatment</span>
+      <span class="chip" onclick="ask('What causes high blood pressure?')">High blood pressure causes</span>
+      <span class="chip" onclick="ask('What is Type 2 Diabetes?')">Type 2 Diabetes</span>
+      <span class="chip" onclick="ask('Cancer screening guidelines')">Cancer screening</span>
+      <span class="chip" onclick="ask('What is lupus?')">What is lupus?</span>
+    </div>
+
+    <div id="status"></div>
+    <div id="results"></div>
+  </main>
+
+  <footer>
+    Powered by <a href="/docs" target="_blank">MedQuAD RAG API</a> &nbsp;•&nbsp;
+    17,000+ NIH Documents &nbsp;•&nbsp; Hybrid RRF Search
+  </footer>
+</div>
+
+<script>
+  const API = '';
+
+  // Health check
+  async function checkHealth() {
+    try {
+      const r = await fetch(API + '/health');
+      const d = await r.json();
+      const badge = document.getElementById('healthBadge');
+      if (d.retriever_ready) {
+        badge.textContent = '● Live';
+        badge.style.cssText = 'background:rgba(52,211,153,0.12);color:#34d399;border-color:rgba(52,211,153,0.25)';
+      } else {
+        badge.textContent = '● Initializing…';
+        badge.style.cssText = 'background:rgba(251,191,36,0.12);color:#fbbf24;border-color:rgba(251,191,36,0.25)';
+      }
+    } catch {
+      document.getElementById('healthBadge').textContent = '● Offline';
+    }
+  }
+  checkHealth();
+
+  document.getElementById('queryInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') search();
+  });
+
+  function ask(q) {
+    document.getElementById('queryInput').value = q;
+    search();
+  }
+
+  function formatText(raw) {
+    // Bold Q&A labels
+    return raw
+      .replace(/Question:/g, '<strong>Question:</strong>')
+      .replace(/Answer:/g, '<strong>Answer:</strong>')
+      .replace(/\n/g, '<br/>');
+  }
+
+  async function search() {
+    const q = document.getElementById('queryInput').value.trim();
+    if (!q) return;
+    const topK = document.getElementById('topK').value;
+
+    const status = document.getElementById('status');
+    const results = document.getElementById('results');
+    const btn = document.getElementById('searchBtn');
+
+    btn.disabled = true;
+    results.innerHTML = '';
+    status.innerHTML = '<div class="spinner"></div><div style="margin-top:8px">Searching 17,000+ medical documents…</div>';
+
+    try {
+      const r = await fetch(`${API}/query?q=${encodeURIComponent(q)}&top_k=${topK}`);
+
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({ detail: r.statusText }));
+        throw new Error(err.detail || 'Request failed');
+      }
+
+      const data = await r.json();
+      status.innerHTML = `<div class="result-meta">Found <span>${data.results.length}</span> result${data.results.length !== 1 ? 's' : ''} in <span>${data.retrieved_in_seconds}s</span></div>`;
+
+      results.innerHTML = data.results.map((doc, i) => `
+        <div class="result-card" style="animation-delay:${i * 0.06}s">
+          <div class="card-header">
+            <div class="card-rank">#${doc.rank}</div>
+            <div class="card-meta">
+              <div class="card-focus">${escHtml(doc.focus)}</div>
+              <div class="card-source-row">
+                <span class="tag">${escHtml(doc.source)}</span>
+                <span class="score">Score: ${doc.relevance_score}</span>
+                ${doc.url && doc.url !== 'N/A' ? `<a class="card-link" href="${escHtml(doc.url)}" target="_blank" rel="noopener">NIH Source ↗</a>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="card-text">${formatText(escHtml(doc.text))}</div>
+        </div>
+      `).join('');
+    } catch (err) {
+      status.innerHTML = '';
+      results.innerHTML = `<div class="error-box">⚠️ ${err.message}</div>`;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>

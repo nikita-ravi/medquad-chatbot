@@ -1,0 +1,35 @@
+# ── Secrets & Environment ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Large Data ────────────────────────────────────────────────────────────────
+MedQuAD/
+qdrant_db/
+qdrant_storage/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+venv/
+venv_stable/
+.venv/
+env/
+
+# ── Local Dev Artifacts ───────────────────────────────────────────────────────
+Dockerfile.local
+.DS_Store
+
+# ── Editor ────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo

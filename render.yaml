@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: medquad-rag-api
+    env: docker
+    dockerfilePath: Dockerfile.render
+    plan: free
+    region: ohio
+    envVars:
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        value: https://10d26be5-8b71-48e5-90fa-873f1772b04e.us-east-1-1.aws.cloud.qdrant.io
+      - key: QDRANT_API_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.bsrCXhPvyP6NRDVaHbGve6MIsXcmIcX0mHjGUHoYbDI
+      - key: RUN_ENV
+        value: docker

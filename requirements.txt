@@ -1,0 +1,14 @@
+llama-index-core==0.14.15
+llama-index-embeddings-nvidia==0.4.2
+llama-index-llms-nvidia==0.4.4
+llama-index-vector-stores-qdrant==0.9.1
+llama-index-readers-file==0.5.6
+qdrant-client==1.17.0
+fastapi==0.135.1
+uvicorn==0.41.0
+pydantic==2.12.5
+arize-phoenix==13.8.0
+arize-phoenix-otel==0.15.0
+openinference-instrumentation-llama-index==4.3.9
+langsmith==0.7.12
+fastembed==0.5.1

@@ -1,0 +1,38 @@
+# ── MedQuAD RAG System — Docker Compose ─────────────────────────────────────
+# Usage:
+#   NVIDIA_API_KEY=nvapi-... docker compose up
+#
+# On first run: auto-indexes all 17,000+ MedQuAD XML docs into Qdrant (~15 min)
+# On subsequent runs: skips indexing, starts immediately
+
+services:
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: medquad-qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rag-api:
+    build: .
+    container_name: medquad-rag-api
+    ports:
+      - "8000:8000"
+    environment:
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY:-}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2:-false}
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  qdrant_data:

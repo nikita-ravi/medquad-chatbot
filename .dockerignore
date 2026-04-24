@@ -1,0 +1,11 @@
+venv/
+venv_stable/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+qdrant_db/
+qdrant_storage/
+*.webp
+*.png
+.env
