@@ -5,7 +5,13 @@
       "Bash(git branch:*)",
       "Bash(git remote add:*)",
       "Bash(git -C /Users/nikitaravi/Desktop/medquad-rag-api-main add -A)",
-      "Bash(git -C /Users/nikitaravi/Desktop/medquad-rag-api-main status)"
+      "Bash(git -C /Users/nikitaravi/Desktop/medquad-rag-api-main status)",
+      "Bash(git -C /Users/nikitaravi/Desktop/medquad-rag-api-main commit -m \"$\\(cat <<''EOF''\nInitial commit: MedQuad RAG API\n\nAdd medical Q&A chatbot API with RAG \\(Retrieval-Augmented Generation\\) capabilities:\n- FastAPI-based REST API for medical question answering\n- Document ingestion and indexing pipeline\n- Query processing with semantic search\n- Docker configuration for deployment\n- Render.com deployment configuration\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C /Users/nikitaravi/Desktop/medquad-rag-api-main push -u origin main)",
+      "Bash(git -C /Users/nikitaravi/Desktop/medquad-rag-api-main push -u origin main --force)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nUpdate repository URLs to nikita-ravi/medquad-chatbot\n\n- Update clone URL in setup instructions\n- Update Render deploy button URL\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)"
     ]
   }
 }

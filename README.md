@@ -160,8 +160,8 @@ medquad-rag-api/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/JAGAN666/medquad-rag-api.git
-cd medquad-rag-api
+git clone https://github.com/nikita-ravi/medquad-chatbot.git
+cd medquad-chatbot
 
 # 2. Create virtual environment
 python3.10 -m venv venv
@@ -306,7 +306,7 @@ docker run -p 8080:8080 \
 
 ### Render (one-click)
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/JAGAN666/medquad-rag-api)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/nikita-ravi/medquad-chatbot)
 
 > Fill in your `NVIDIA_API_KEY` when prompted, then click **Apply**.
 
